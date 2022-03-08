@@ -6,7 +6,9 @@ import "truffle/DeployedAddresses.sol";
 import "../contracts/CrowdFunding.sol";
 
 contract TestCrowdFunding {
-    function testSettingAnOwnerCreation() public {
+
+    // Solo el propietario puede crearlo
+    function testSettingAnOwnerDuringCreation() public {
         CrowdFunding crowdFunding = new CrowdFunding();
         
         address expected = address(crowdFunding.owner());
@@ -14,4 +16,11 @@ contract TestCrowdFunding {
 
         Assert.equal(expected, thisaddress, "ALERT owner is differente than a deployer");
     }
+
+   //Solo el propietario puede desplegar el contrato
+   function testSettingAnOwnerOfDeployedContract() public {
+        CrowdFunding crowdFunding = CrowdFunding(DeployedAddresses.CrowdFunding());
+                
+        Assert.equal(address(crowdFunding.owner()), msg.sender, "ALERT owner is differente than a deployer");
+   }  
 }
