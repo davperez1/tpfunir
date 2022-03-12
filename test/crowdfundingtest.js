@@ -5,48 +5,57 @@ require('chai')
     .should();
 const ERROR_MSG = 'VM Exception while processing transaction: revert';
 
+describe("CrowdFunding contract", function () {
+    let accounts;
+    let _ownerAccount;
+    let _secondAccount;
+    let crowdFunding;
 
-contract('CrowdFunding', (accounts) => {
-    const [firstAccount] = accounts;
-    const secondAccount = accounts[1];
-
-    it('sets an owner', async () => {
-        const crowdFunding = await CrowdFunding.new();
-        
-        assert.equal(await crowdFunding.owner.call(), firstAccount);
+    before (async function () {
+        accounts = await web3.eth.getAccounts();
+        _ownerAccount = accounts[0];
+        _secondAccount = accounts[1];
+        crowdFunding = await CrowdFunding.new();
     });
 
-    it('create crowdfunding and return 0 token por default', async () => {
-        const crowdFunding = await CrowdFunding.new();
-        
-        const expected = await crowdFunding.totalToken.call();
-        
-        assert.equal(+expected.toString(), 0);
+    describe("Create CrowdFunding", function() {
+
+        it('should deploy and sets an owner', async () => {                        
+            assert.equal(await crowdFunding.owner.call(), _ownerAccount);
+        });
+
+        it('should create crowdfunding and return 0 token', async () => {            
+            const result = await crowdFunding.totalToken.call();
+            
+            assert.equal(+result.toString(), 0);
+        });
     });
+
+    describe("Add token", function() {
+
+        it('Not owner, It should not can add token', async () => {
+            const newCantToken = 15;
     
-    it('Add more token to the crowdfunding', async () => {
-        const crowdFunding = await CrowdFunding.new();
-        const newCantToken = 15;
-        const newCantToken1 = 3;
-        
-        const tempVar = await crowdFunding.totalToken.call();
-        await crowdFunding.addToken(newCantToken);        
-        const expected = await crowdFunding.totalToken.call();
-        
-        assert.equal(+expected.toString(), +tempVar.toString() + newCantToken);
+            await crowdFunding.addToken(newCantToken,{from: _secondAccount})
+                .should.be.rejectedWith(ERROR_MSG);
+        });
 
-        await crowdFunding.addToken(newCantToken1);        
-        const expected1 = await crowdFunding.totalToken.call();
+        it('should add more token to the crowdfunding', async () => {
+            const newCantToken = 15;
+            const newCantToken1 = 3;
+            
+            const tokenInitialCero = await crowdFunding.totalToken.call();
+            await crowdFunding.addToken(newCantToken);        
 
-        assert.equal(+expected1.toString(), +tempVar.toString() + newCantToken + newCantToken1);
-
-    });
+            const result = await crowdFunding.totalToken.call();
+            
+            assert.equal(+result.toString(), +tokenInitialCero.toString() + newCantToken);
     
-    it('Not owner, It should not can add token', async () => {
-        const crowdFunding = await CrowdFunding.new();
-        const newCantToken = 15;
-
-        await crowdFunding.addToken(newCantToken,{from: secondAccount})
-            .should.be.rejectedWith(ERROR_MSG);
+            await crowdFunding.addToken(newCantToken1);        
+            const result1 = await crowdFunding.totalToken.call();
+    
+            assert.equal(+result1.toString(), +tokenInitialCero.toString() + newCantToken + newCantToken1);
+    
+        });            
     });
 });
