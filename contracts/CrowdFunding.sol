@@ -1,10 +1,22 @@
-// SPDX License Identifier: MIT
-pragma solidity ^0.5.1;
+// SPDX-License-Identifier: MIT
 
-contract CrowdFunding {
-    address public owner;
+import "./CrowdFundingTOKEN.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+pragma solidity ^0.8.0;
+
+contract CrowdFunding is Ownable {
+    CrowdFundingTOKEN token;
     
-    constructor() public {
-        owner = msg.sender;
+    constructor() {
+        token = new CrowdFundingTOKEN();
+    }
+
+    function totalToken() public view returns (uint256) {
+        return token.totalSupply();
+    }
+
+    function addToken(uint256 _addToken) public onlyOwner {
+        token.mint(msg.sender, _addToken);
     }
 }
