@@ -1,0 +1,207 @@
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=ISO-8859-1">
+        <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.35/dist/web3.min.js"></script>        
+        <script>
+                 
+        var addressCrowdFunding = "0xCcb5b22A6bf056e5Eb2a38f7Dd3444594094Aae6";        
+        const ABI_CROWDFUNDING = [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "_name",
+          "type": "string"
+        }
+      ],
+      "name": "setDataCrowdFunding",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getDataCrowdFunding",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [],
+      "name": "totalToken",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_cantTokenForExchange",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_cantTokenToTheWinner",
+          "type": "uint256"
+        }
+      ],
+      "name": "addToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+        
+        //console.log(CrowdFunding);
+        //const fs = require('fs');
+        
+        // const jsonFile = "../build/contracts/CrowdFunding.json";
+        // const parsed= JSON.parse(fs.readFileSync(jsonFile));
+        // const abi = parsed.abi;
+
+        var accounts;
+        var cuentaUsuario;
+
+        var instancia;    
+
+        async function start() {
+           window.addEventListener('load', async () => {
+                if (window.ethereum) {
+                    console.log("Metamask detected!");
+                    web3 = new Web3(window.ethereum);
+                    await window.ethereum.enable();
+                    
+                    accounts = await web3.eth.getAccounts();
+                    cuentaUsuario = accounts[0];
+
+                    var result = cuentaUsuario;
+                    document.getElementById('adressAccount').innerHTML = result;
+                                
+                    instancia = new web3.eth.Contract(ABI_CROWDFUNDING, addressCrowdFunding);
+                    
+                    var resu = await instancia.methods.totalToken().call();
+                    document.getElementById('totalTokenver').innerHTML = resu;
+                    
+                }
+                else{
+                    console.log("no se puede conectar a metamask");
+                }
+           });
+        }
+
+        start(); 
+
+        </script>
+        </head>
+        <body>
+
+            <table>
+                <tr>
+                  <td colspan="2">
+                    <span style="font-weight:bold">
+                        <div id="resultado">
+                            <label>Cuenta de usuario:</label>
+                            <label id="adressAccount">test</label>
+                        </div>
+                    </span>                    
+                  </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <span style="font-weight:bold">
+                            <div id="resultado">
+                                <label>Cuenta de usuario:</label>
+                                <label id="totalTokenver">test</label>
+                            </div>
+                        </span>                    
+                      </td>
+                    </tr>
+                <tr>
+            </table>
+       
+            <div id="console"></div>
+        </body>
+</html>
