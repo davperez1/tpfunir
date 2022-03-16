@@ -31,15 +31,24 @@ describe("CrowdFunding contract", function () {
         });
     });
 
-    describe("Create CrowdFunding", function() {
+    describe("Set Name CrowdFunding", function() {
     
-        it('should sets a name to CrowdFunding', async () => {                        
-            const varName = "Este es un crowdfunding de prueba";
+        it('should sets name of the CrowdFunding', async () => {                        
+            const varName = "Este es un crowdfunding de prueba";            
 
-            await crowdFunding.setDataCrowdFunding(varName);
+            await crowdFunding.setNameCrowdFunding(varName);
             const result = await crowdFunding.getDataCrowdFunding.call()
-            assert.equal(result[0], varName);
+            assert.equal(result[0], varName);            
         });
+
+        it('It should not can set name in blank', async () => {                        
+            await crowdFunding.setNameCrowdFunding("").should.be.rejectedWith(ERROR_MSG);            
+        });
+
+        it('Not owner, It should not can set name', async () => {                        
+            await crowdFunding.setNameCrowdFunding("Nonmbre Valido pero no es owner", 
+                {from: _secondAccount}).should.be.rejectedWith(ERROR_MSG);            
+        });    
     });
 
     describe("Add token", function() {
@@ -75,6 +84,17 @@ describe("CrowdFunding contract", function () {
                 newTokenToTheWinner + newTokenForExchange +
                 newTokenToTheWinner1 + newTokenForExchange1
             );    
-        });            
+        });       
+        
+        it('It should not can data entry invalid data', async () => {                                    
+            await crowdFunding.addToken(0, 0)
+                .should.be.rejectedWith(ERROR_MSG);
+            await crowdFunding.addToken("dfe", 0)
+                .should.be.rejected;
+            await crowdFunding.addToken("dfe", "")
+                .should.be.rejected;
+        });
     });
+
+    //TODO: BURN TOKEN
 });

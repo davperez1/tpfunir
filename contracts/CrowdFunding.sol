@@ -10,17 +10,22 @@ contract CrowdFunding is Ownable {
     string name;
     uint256 cantTokenForExchange;
     uint256 cantTokenToTheWinner;
+    bool stateCanFund;
     
     constructor() {
         token = new CrowdFundingTOKEN();
+        name = "";
+        stateCanFund = false;
     }
 
-    function setDataCrowdFunding(string memory _name) public {
-        name = _name;
+    function setNameCrowdFunding(string memory _name) public onlyOwner {
+         // Verifica que el Nombre no sea nulo
+        require(bytes(_name).length > 0);        
+        name = _name;        
     }
 
-    function getDataCrowdFunding() public view returns (string memory, uint256,uint256) {        
-        return (name, cantTokenForExchange, cantTokenToTheWinner);
+    function getDataCrowdFunding() public view returns (string memory, uint256,uint256, bool, uint256) {        
+        return (name, cantTokenForExchange, cantTokenToTheWinner, stateCanFund, token.totalSupply());
     }
 
     function totalToken() public view returns (uint256) {
@@ -29,6 +34,11 @@ contract CrowdFunding is Ownable {
 
     function addToken(uint256 _cantTokenForExchange, 
         uint256 _cantTokenToTheWinner) public onlyOwner {
+
+        // Requiere que los valores sean positivos
+        require(_cantTokenForExchange > 0);
+        require(_cantTokenToTheWinner > 0);
+
         token.mint(
                 msg.sender, 
                 _cantTokenForExchange + 
