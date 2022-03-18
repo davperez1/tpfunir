@@ -1,3 +1,5 @@
+const { assert } = require('chai');
+
 const CrowdFunding = artifacts.require ("CrowdFunding");
 
 require('chai')

@@ -19,7 +19,7 @@ contract CrowdFunding is Ownable {
     }
 
     function setNameCrowdFunding(string memory _name) public onlyOwner {
-         // Verifica que el Nombre no sea nulo
+        // Verifica que el Nombre no sea nulo
         require(bytes(_name).length > 0);        
         name = _name;        
     }
