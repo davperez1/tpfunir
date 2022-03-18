@@ -140,10 +140,24 @@
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "openCrowdFunding",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "closeCrowdFunding",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     }
   ]
         
-        var addressCrowdFunding = "0xEdbb3C98DC9A226518c75E8F641cD0C3F8e3a364";    
+        var addressCrowdFunding = "0x86818b1929AB9A81DbB158C346988ce615393fBb";    
         var accounts;
         var cuentaUsuario;
 
@@ -173,7 +187,6 @@
 
       async function updateDataView() {
         var resu = await instanciaCrowdFundingContract.methods.getDataCrowdFunding().call();
-        console.log(resu);
         document.getElementById('nombreCrowdFundingID').innerHTML = resu[0];
         document.getElementById('cantTokenForExchangeID').innerHTML = resu[1];
         document.getElementById('cantTokenForToTheWinnerID').innerHTML = resu[2];
@@ -181,10 +194,9 @@
         document.getElementById('cantTotalTokenID').innerHTML = resu[4];
       }
       
-      async function guardarDatosCrowdFunding() {
+      async function guardarNombre() {
         var nombre = document.getElementById('nombreID').value;
-        var cantTokenExchangeID = document.getElementById('cantTokenExchangeID').value;
-        var cantTokenToTheWinnerID = document.getElementById('cantTokenToTheWinnerID').value;
+        
 
          await instanciaCrowdFundingContract.methods.setNameCrowdFunding(nombre)
           .send({from: window.cuentaUsuario})
@@ -192,10 +204,28 @@
 	          console.log("success");
           })
           .on("error", () => {
-            windows.alert("error")
+            window.alert("error")
           });
+        }
+
+        async function guardarToken() {
+          var cantTokenExchangeID = document.getElementById('cantTokenExchangeID').value;
+          var cantTokenToTheWinnerID = document.getElementById('cantTokenToTheWinnerID').value;
 
           await instanciaCrowdFundingContract.methods.addToken(parseInt(cantTokenExchangeID), parseInt(cantTokenToTheWinnerID))
+            .send({from: window.cuentaUsuario})
+            .once("recepient", (recepient) =>{
+	          console.log("success");
+          })
+          .on("error", () => {
+            window.alert("error")
+          });
+
+        updateDataView();                    
+      }
+
+      async function openCrowdFunding() {
+        await instanciaCrowdFundingContract.methods.openCrowdFunding()
           .send({from: window.cuentaUsuario})
           .once("recepient", (recepient) =>{
 	          console.log("success");
@@ -203,9 +233,21 @@
           .on("error", () => {
             windows.alert("error")
           });
-
         updateDataView();                    
       }
+
+      async function closeCrowdFunding() {
+        await instanciaCrowdFundingContract.methods.closeCrowdFunding()
+          .send({from: window.cuentaUsuario})
+          .once("recepient", (recepient) =>{
+	          console.log("success");
+          })
+          .on("error", () => {
+            windows.alert("error")
+          });
+        updateDataView();                    
+      }
+
 
       start(); 
 
@@ -350,7 +392,25 @@
           <tr>
             <td colspan="2">
               <span style="font-weight:bold">Guardar Cambios --></span>
-              <input type="button" value="Guardar Cambios" onclick="guardarDatosCrowdFunding()">
+              <input type="button" value="Guardar Nombre" onclick="guardarNombre()">
+            </td>              
+          </tr>  
+          <tr>
+            <td colspan="2">
+              <span style="font-weight:bold">Guardar Cambios --></span>
+              <input type="button" value="Guardar Token Venta/Ganador" onclick="guardarToken()">
+            </td>              
+          </tr>  
+          <tr>
+            <td colspan="2">
+              <span style="font-weight:bold">Guardar Cambios --></span>
+              <input type="button" value="Open CrowdFunding" onclick="openCrowdFunding()">
+            </td>              
+          </tr>  
+          <tr>
+            <td colspan="2">
+              <span style="font-weight:bold">Guardar Cambios --></span>
+              <input type="button" value="Close CrowdFunding" onclick="closeCrowdFunding()">
             </td>              
           </tr>           
         </table>

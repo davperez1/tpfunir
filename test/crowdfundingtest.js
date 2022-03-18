@@ -71,30 +71,62 @@ describe("CrowdFunding contract", function () {
             
             const tokenInitialCero = await crowdFunding.totalToken.call();
             await crowdFunding.addToken(newTokenForExchange, newTokenToTheWinner);        
-            const result = await crowdFunding.totalToken.call();
+            const result = await crowdFunding.getDataCrowdFunding.call();
             
-            assert.equal(+result.toString(), 
+            assert.equal(+result[4].toString(), 
                 +tokenInitialCero.toString() + 
-                newTokenToTheWinner +newTokenForExchange
-            );    
+                newTokenToTheWinner + newTokenForExchange
+            );
+            assert.equal(+result[1],newTokenForExchange);
+            assert.equal(+result[2],newTokenToTheWinner);
 
             await crowdFunding.addToken(newTokenForExchange1, newTokenToTheWinner1);        
-            const result1 = await crowdFunding.totalToken.call();
+            const result1 = await crowdFunding.getDataCrowdFunding.call();
             
-            assert.equal(+result1.toString(), 
+            assert.equal(+result1[4].toString(), 
                 +tokenInitialCero.toString() + 
                 newTokenToTheWinner + newTokenForExchange +
                 newTokenToTheWinner1 + newTokenForExchange1
             );    
+            assert.equal(+result1[1], newTokenForExchange + newTokenForExchange1);
+            assert.equal(+result1[2], newTokenToTheWinner + newTokenToTheWinner1);
+
         });       
         
         it('It should not can data entry invalid data', async () => {                                    
             await crowdFunding.addToken(0, 0)
                 .should.be.rejectedWith(ERROR_MSG);
+            await crowdFunding.addToken(0, 50)
+                .should.be.rejectedWith(ERROR_MSG);
             await crowdFunding.addToken("dfe", 0)
                 .should.be.rejected;
             await crowdFunding.addToken("dfe", "")
                 .should.be.rejected;
+        });
+    });
+
+    describe("Open CrowdFunding", function(){    
+        it('should sets to open CrowdFunding', async () => {                        
+            await crowdFunding.openCrowdFunding();
+            const varState = await crowdFunding.getDataCrowdFunding();
+            assert.equal(true, varState[3]);            
+        });
+        it('Not owner, It should not open CrowdFunding', async () => {    
+            await crowdFunding.openCrowdFunding(
+                {from: _secondAccount}).should.be.rejectedWith(ERROR_MSG);
+        });
+    });
+
+    describe("Close CrowdFunding", function(){    
+        it('should sets to close CrowdFunding', async () => {      
+                await crowdFunding.closeCrowdFunding();
+                const varState = await crowdFunding.getDataCrowdFunding();
+            assert.equal(false, varState[3]);
+        });
+
+        it('Not owner, It should not close CrowdFunding', async () => {    
+            await crowdFunding.closeCrowdFunding(
+                {from: _secondAccount}).should.be.rejectedWith(ERROR_MSG);
         });
     });
 

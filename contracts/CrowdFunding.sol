@@ -35,13 +35,24 @@ contract CrowdFunding is Ownable {
     function addToken(uint256 _cantTokenForExchange, 
         uint256 _cantTokenToTheWinner) public onlyOwner {
 
-        // Requiere que los valores sean positivos
+        // Verifica valores validos
         require(_cantTokenForExchange > 0);
-        require(_cantTokenToTheWinner > 0);
+        require(_cantTokenToTheWinner >= 0);
 
         token.mint(
                 msg.sender, 
                 _cantTokenForExchange + 
-                _cantTokenToTheWinner);
+                _cantTokenToTheWinner)
+        ;
+        cantTokenForExchange = cantTokenForExchange + _cantTokenForExchange;
+        cantTokenToTheWinner = cantTokenToTheWinner + _cantTokenToTheWinner;
+    }
+
+    function openCrowdFunding() public onlyOwner {
+        stateCanFund = true;
+    }
+
+    function closeCrowdFunding() public  onlyOwner {
+        stateCanFund = false;
     }
 }
