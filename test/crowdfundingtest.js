@@ -11,12 +11,14 @@ describe("CrowdFunding contract", function () {
     let accounts;
     let _ownerAccount;
     let _secondAccount;
+    let _thirdAccount;
     let crowdFunding;
 
     before (async function () {
         accounts = await web3.eth.getAccounts();
         _ownerAccount = accounts[0];
         _secondAccount = accounts[1];
+        _thirdAccount = accounts[2];
         crowdFunding = await CrowdFunding.new();
     });
 
@@ -129,6 +131,89 @@ describe("CrowdFunding contract", function () {
                 {from: _secondAccount}).should.be.rejectedWith(ERROR_MSG);
         });
     });
+
+    describe("Buy Token", function(){
+
+    });
+
+    describe("Get Balance Token", function(){
+        it('Owner should get balance', async () => {      
+            const varBalance = await crowdFunding.getBalance(_ownerAccount);
+            var addTokenPreview = 70;
+            assert.equal(addTokenPreview , +varBalance);
+        });
+
+        it('Second Account should get balance 0', async () => {      
+            const varBalance = await crowdFunding.getBalance(_secondAccount);            
+            assert.equal(0 , +varBalance);
+        });
+    });
+
+    // describe("Buy Token", function(){
+    //     it('Buy Token with exactly price', async () => {      
+    //         var varBalance = await crowdFunding.getBalance(_thirdAccount);
+    //         assert.equal(0 , +varBalance);
+        
+            
+    //         await crowdFunding.buyToken1(_thirdAccount, 1, {from: _ownerAccount});
+    //         //  console.log(await crowdFunding.owner());
+    //         var tempVar = await crowdFunding.getBalance(_ownerAccount);
+    //         assert.equal(10, +tempVar);
+
+            
+    //         //await crowdFunding.buyToken1(1,_thirdAccount , {from: _ownerAccount} );
+            
+    //         // var vart = crowdFunding.buyToken2();
+    //         // console.log(vart.toString());
+            
+
+    //         var varBalance = await crowdFunding.getBalance(_thirdAccount);
+    //         assert.equal(1 , +varBalance);
+
+    //     });
+
+    //     // it('Second Account should get balance 0', async () => {      
+
+    //     //     const varBalance = await crowdFunding.getBalance(_secondAccount);            
+    //     //     assert.equal(0 , +varBalance);
+    //     // });
+    // });
+
+    describe("Buy Ticket to the lottery CrowdFunding", function(){
+        
+        it('should not buy ticket in CloseCrowdFunding', async () => {                
+            await crowdFunding.buyTicketLottery(_secondAccount,
+                {from: _secondAccount}).should.be.rejectedWith(ERROR_MSG);
+        });
+
+
+        it('Should buy one ticket lottery', async () => {
+            await crowdFunding.openCrowdFunding();      
+            await crowdFunding.buyTicketLottery(_secondAccount);
+            await crowdFunding.buyTicketLottery(_thirdAccount);
+
+            const varGetCantTotalTicketLotterySold = await crowdFunding.getCantTicketTotalLottery();
+            assert.equal(2 , +varGetCantTotalTicketLotterySold);
+
+            const varGetNumerTicketLotteryAssigned = await crowdFunding.getAllNumberTicketLotteryPerson(_secondAccount);
+            assert.equal(1 , +varGetNumerTicketLotteryAssigned[0]);
+
+            const varGetAddressFromNumberAssigned = await crowdFunding.getAddressFromNumberLotteryAssigned(1);
+            assert.equal(_secondAccount , varGetAddressFromNumberAssigned);
+        });
+
+        it('Should buy two ticket lottery', async () => {
+            await crowdFunding.openCrowdFunding();                  
+            await crowdFunding.buyTicketLottery(_thirdAccount);
+
+            const varGetNumerTicketLotteryAssigned = await crowdFunding.getAllNumberTicketLotteryPerson(_secondAccount);
+            assert.equal(1 , varGetNumerTicketLotteryAssigned.length);
+        
+            const varGetNumerTicketLotteryAssigned1 = await crowdFunding.getAllNumberTicketLotteryPerson(_thirdAccount);
+            assert.equal(2 , varGetNumerTicketLotteryAssigned1.length);
+        });
+    });
+
 
     //TODO: BURN TOKEN
 });

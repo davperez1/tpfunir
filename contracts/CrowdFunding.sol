@@ -2,6 +2,7 @@
 
 import "./CrowdFundingTOKEN.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
 pragma solidity ^0.8.0;
 
@@ -11,6 +12,11 @@ contract CrowdFunding is Ownable {
     uint256 cantTokenForExchange;
     uint256 cantTokenToTheWinner;
     bool stateCanFund;
+    using Counters for Counters.Counter;
+    Counters.Counter private _numberTicket;
+    mapping (address => uint256 []) personAddress_NumberTicketMap;
+    mapping (uint256 => address) numberTicketAssigned_personAddressMap;
+    
     
     constructor() {
         token = new CrowdFundingTOKEN();
@@ -54,5 +60,47 @@ contract CrowdFunding is Ownable {
 
     function closeCrowdFunding() public  onlyOwner {
         stateCanFund = false;
+    }
+
+    function getBalance(address account) view public returns (uint256){
+        return token.balanceOf(account);
+    }
+
+    // function buyToken(uint cantToken, address a) public payable {
+    //     token.transferFrom(address(this), a, cantToken);        
+    // }
+
+    // function buyToken1(address to, uint cantToken) public payable {
+    //     token.approve(msg.sender, cantToken);
+    //     //token.transfer(to, cantToken);
+    //     //token.transferFrom(owner(), msg.sender, cantToken);
+    // }
+
+    
+    // function buyToken2() view public returns(address) {
+    //     return msg.sender;        
+    // }
+
+    function buyTicketLottery(address account) public {
+        // controlar que tenga token para comprar un ticket
+        // actualizar token juntado por venta        
+        require(stateCanFund == true);        
+        
+        _numberTicket.increment();
+        personAddress_NumberTicketMap[account].push(_numberTicket.current());
+        numberTicketAssigned_personAddressMap[_numberTicket.current()] = account;
+    }
+
+    function getCantTicketTotalLottery() view public returns(uint256) {        
+        return _numberTicket.current();
+    }
+
+    function getAllNumberTicketLotteryPerson(address account) view public returns(uint256 [] memory) {
+        return personAddress_NumberTicketMap[account];
+    }
+    
+    function getAddressFromNumberLotteryAssigned(
+        uint256 _number) view public returns(address) {
+        return numberTicketAssigned_personAddressMap[_number];
     }
 }
