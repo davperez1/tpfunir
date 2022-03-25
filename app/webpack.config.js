@@ -15,11 +15,4 @@ module.exports = {
     plugins: [
         new CopyWebpackPlugin([{ from: "./src/index.html", to: "index.html" }]),
       ]
-    // devServer: {
-    //     static: {
-    //         directory: path.join(__dirname,'./build')
-    //       },
-    //     port: 9000,
-    //     compress: true,
-    // }
 };

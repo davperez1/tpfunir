@@ -41,7 +41,7 @@ const App = {
       window.alert("error")
     });
 
-    App.updateDataView();   
+    App.updateDataView();       
   },
 
   updateDataView: async function() {
@@ -51,6 +51,14 @@ const App = {
     document.getElementById('cantTokenForToTheWinnerID').innerHTML = resu[2];
     document.getElementById('stateCanFundID').innerHTML = resu[3];
     document.getElementById('cantTotalTokenID').innerHTML = resu[4];
+  },
+
+  updateViewUser: async function() {      
+    var bal = await this.web3.eth.getBalance(this.userAccount);
+    document.getElementById('addressAccountID-user').innerHTML = this.userAccount;
+    document.getElementById('cantETHID-user').innerHTML = this.web3.utils.fromWei(bal);
+    document.getElementById('cantCFTID-user').innerHTML = 0 ;
+    document.getElementById('cantNumeroCompradosID-user').innerHTML = 0 ;
   },
 
   guardarToken: async function() {
@@ -114,117 +122,6 @@ window.addEventListener("load", function() {
 
   App.start();
 });
-
-
-
-
-  // async function start() {
-  //     window.addEventListener('load', async () => {
-  //         if (window.ethereum) {
-  //             console.log("Metamask detected!");
-  //             web3 = new Web3(window.ethereum);
-  //             await window.ethereum.enable();
-              
-  //             accounts = await web3.eth.getAccounts();
-  //             cuentaUsuario = accounts[0];
-  //             document.getElementById('addressAccountID').innerHTML = cuentaUsuario;
-                          
-  //             instanciaCrowdFundingContract = new web3.eth.Contract(
-  //               ABI_CROWDFUNDING, addressCrowdFunding);
-              
-  //               updateDataView();                    
-  //         }
-  //         else{
-  //             console.log("no se puede conectar a metamask");
-  //         }
-  //     });
-  // }
-
-// async function updateDataView() {
-//   var resu = await instanciaCrowdFundingContract.methods.getDataCrowdFunding().call();
-//   document.getElementById('nombreCrowdFundingID').innerHTML = resu[0];
-//   document.getElementById('cantTokenForExchangeID').innerHTML = resu[1];
-//   document.getElementById('cantTokenForToTheWinnerID').innerHTML = resu[2];
-//   document.getElementById('stateCanFundID').innerHTML = resu[3];
-//   document.getElementById('cantTotalTokenID').innerHTML = resu[4];
-// }
-
-
-// async function guardarNombre() {
-//   var nombre = document.getElementById('nombreID').value;
-  
-
-//     await instanciaCrowdFundingContract.methods.setNameCrowdFunding(nombre)
-//     .send({from: window.cuentaUsuario})
-//     .once("recepient", (recepient) =>{
-//       console.log("success");
-//     })
-//     .on("error", () => {
-//       window.alert("error")
-//     });
-//   }
-
-//   async function guardarToken() {
-//     var cantTokenExchangeID = document.getElementById('cantTokenExchangeID').value;
-//     var cantTokenToTheWinnerID = document.getElementById('cantTokenToTheWinnerID').value;
-
-//     await instanciaCrowdFundingContract.methods.addToken(parseInt(cantTokenExchangeID), parseInt(cantTokenToTheWinnerID))
-//       .send({from: window.cuentaUsuario})
-//       .once("recepient", (recepient) =>{
-//       console.log("success");
-//     })
-//     .on("error", () => {
-//       window.alert("error")
-//     });
-
-//   updateDataView();                    
-// }
-
-// async function openCrowdFunding() {
-//   await instanciaCrowdFundingContract.methods.openCrowdFunding()
-//     .send({from: window.cuentaUsuario})
-//     .once("recepient", (recepient) =>{
-//       console.log("success");
-//     })
-//     .on("error", () => {
-//       windows.alert("error")
-//     });
-//   updateDataView();                    
-// }
-
-// async function closeCrowdFunding() {
-//   await instanciaCrowdFundingContract.methods.closeCrowdFunding()
-//     .send({from: window.cuentaUsuario})
-//     .once("recepient", (recepient) =>{
-//       console.log("success");
-//     })
-//     .on("error", () => {
-//       windows.alert("error")
-//     });
-//   updateDataView();                    
-// }
-
-// start(); 
-
-// window.addEventListener("load", function() {
-//   // if (window.ethereum) {
-//   //   // use MetaMask's provider
-//   //   App.web3 = new Web3(window.ethereum);
-//   //   window.ethereum.enable(); // get permission to access accounts
-//   // } else {
-//   //   console.warn(
-//   //     "No web3 detected. Falling back to http://127.0.0.1:8545. You should remove this fallback when you deploy live",
-//   //   );
-//   //   // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
-//   //   App.web3 = new Web3(
-//   //     new Web3.providers.HttpProvider("http://127.0.0.1:8545"),
-//   //   );
-//   // }
-
-//   start();
-// });
-
-
 
 // var accounts;
 // var cuentaUsuario;
