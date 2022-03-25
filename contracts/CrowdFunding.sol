@@ -16,7 +16,12 @@ contract CrowdFunding is Ownable {
     Counters.Counter private _numberTicket;
     mapping (address => uint256 []) personAddress_NumberTicketMap;
     mapping (uint256 => address) numberTicketAssigned_personAddressMap;
-    
+
+    struct WinnerLottery{
+        address accountWinner;
+        uint256 numerWinner; 
+    }
+    WinnerLottery winnerLottery;
     
     constructor() {
         token = new CrowdFundingTOKEN();
@@ -102,5 +107,19 @@ contract CrowdFunding is Ownable {
     function getAddressFromNumberLotteryAssigned(
         uint256 _number) view public returns(address) {
         return numberTicketAssigned_personAddressMap[_number];
+    }
+
+    function closeCrowdFundingAndPickTheWinner() public onlyOwner{
+    //verificar que esté abierto el crowdfundiong
+    //verificar que haya número vendidos
+    //generar el random con el número máximo de venta
+    //devolver tokenes a todos los participantes
+    //darle al ganador el premio
+    require(_numberTicket.current()>0);
+    uint numberWinner = uint(uint(keccak256(abi.encodePacked(block.timestamp))) % _numberTicket.current());
+
+    winnerLottery.accountWinner = getAddressFromNumberLotteryAssigned(numberWinner);
+    winnerLottery.numerWinner = numberWinner;
+
     }
 }

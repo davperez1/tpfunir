@@ -19,7 +19,7 @@ describe("CrowdFunding contract", function () {
         _ownerAccount = accounts[0];
         _secondAccount = accounts[1];
         _thirdAccount = accounts[2];
-        crowdFunding = await CrowdFunding.new();
+        crowdFunding = await CrowdFunding.new();        
     });
 
     describe("Deploy CrowdFunding", function() {
@@ -214,6 +214,9 @@ describe("CrowdFunding contract", function () {
         });
     });
 
+    //agregar mas compradores
+    //sortear
+    //verificar que sea el que ha comprado
 
     //TODO: BURN TOKEN
 });
