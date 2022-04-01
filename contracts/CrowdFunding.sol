@@ -7,11 +7,12 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 pragma solidity ^0.8.0;
 
 contract CrowdFunding is Ownable {
-    CrowdFundingTOKEN token;
-    string name;
-    uint256 cantTokenForExchange;
-    uint256 cantTokenToTheWinner;
-    bool stateCanFund;
+    CrowdFundingTOKEN private token;
+    string private name;
+    uint256 private cantTokenForExchange;
+    uint256 private cantTokenToTheWinner;
+    bool private stateCanFund;
+    uint256 private priceTokenCFT;
     using Counters for Counters.Counter;
     Counters.Counter private _numberTicket;
     mapping (address => uint256 []) personAddress_NumberTicketMap;
@@ -21,12 +22,14 @@ contract CrowdFunding is Ownable {
         address accountWinner;
         uint256 numerWinner; 
     }
-    WinnerLottery winnerLottery;
+    WinnerLottery private winnerLottery;
     
     constructor() {
         token = new CrowdFundingTOKEN();
         name = "";
         stateCanFund = false;
+        token.approve(address(this), 0);
+        priceTokenCFT = 1 ether;
     }
 
     function setNameCrowdFunding(string memory _name) public onlyOwner {
@@ -37,6 +40,10 @@ contract CrowdFunding is Ownable {
 
     function getDataCrowdFunding() public view returns (string memory, uint256,uint256, bool, uint256) {        
         return (name, cantTokenForExchange, cantTokenToTheWinner, stateCanFund, token.totalSupply());
+    }
+
+    function getPriceTokenCFT() public view returns(uint256) {
+        return priceTokenCFT;
     }
 
     function totalToken() public view returns (uint256) {
@@ -57,6 +64,7 @@ contract CrowdFunding is Ownable {
         ;
         cantTokenForExchange = cantTokenForExchange + _cantTokenForExchange;
         cantTokenToTheWinner = cantTokenToTheWinner + _cantTokenToTheWinner;
+        token.increaseAllowance(address(this), cantTokenForExchange);
     }
 
     function openCrowdFunding() public onlyOwner {
@@ -71,20 +79,22 @@ contract CrowdFunding is Ownable {
         return token.balanceOf(account);
     }
 
-    // function buyToken(uint cantToken, address a) public payable {
-    //     token.transferFrom(address(this), a, cantToken);        
-    // }
+    function getBalanceETH() view public returns(uint256){
+        return (address(this).balance);
+    }
 
-    // function buyToken1(address to, uint cantToken) public payable {
-    //     token.approve(msg.sender, cantToken);
-    //     //token.transfer(to, cantToken);
-    //     //token.transferFrom(owner(), msg.sender, cantToken);
-    // }
+    function buyToken(address payable _buyer, uint cantToken) public payable {
+        require(msg.value >= priceTokenCFT);
+        require(cantTokenForExchange > 0);
+        
+        uint returnValue = msg.value - priceTokenCFT;
+        if (returnValue > 0){
+            _buyer.transfer(returnValue);
+        }                    
 
-    
-    // function buyToken2() view public returns(address) {
-    //     return msg.sender;        
-    // }
+        token.transferCFT(owner(), msg.sender, cantToken);
+        cantTokenForExchange -= cantToken;
+    }
 
     function buyTicketLottery(address account) public {
         // controlar que tenga token para comprar un ticket

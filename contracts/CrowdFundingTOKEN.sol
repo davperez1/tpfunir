@@ -14,4 +14,9 @@ contract CrowdFundingTOKEN is ERC20, Ownable {
         _mint(to, amount);
 
     }
+
+    function transferCFT(address sender, address receiver, uint256 numTokens) public returns (bool){
+        _transfer(sender, receiver, numTokens);        
+        return true;
+    } 
 }

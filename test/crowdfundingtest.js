@@ -1,4 +1,4 @@
-const { assert } = require('chai');
+const { assert, AssertionError } = require('chai');
 
 const CrowdFunding = artifacts.require ("CrowdFunding");
 
@@ -132,11 +132,7 @@ describe("CrowdFunding contract", function () {
         });
     });
 
-    describe("Buy Token", function(){
-
-    });
-
-    describe("Get Balance Token", function(){
+    describe("Get Balance Token CFT", function(){
         it('Owner should get balance', async () => {      
             const varBalance = await crowdFunding.getBalance(_ownerAccount);
             var addTokenPreview = 70;
@@ -149,39 +145,75 @@ describe("CrowdFunding contract", function () {
         });
     });
 
-    // describe("Buy Token", function(){
-    //     it('Buy Token with exactly price', async () => {      
-    //         var varBalance = await crowdFunding.getBalance(_thirdAccount);
-    //         assert.equal(0 , +varBalance);
-        
+    describe("Buy Token CFT with ETH", function(){
+        it('transfer: should transfer 1 CFT to buyer and contract should have more ETH', async () => {            
+            const priceTokenCFT = await crowdFunding.getPriceTokenCFT();
+            var varBalanceReceiverCFT = await crowdFunding.getBalance(_secondAccount);
+            var varBalanceReceiverETH = await web3.eth.getBalance(_secondAccount);
+            var varBalanceContractETH = await web3.eth.getBalance(await crowdFunding.address);
+            var varBalanceOwnerCFT = await crowdFunding.getBalance(_ownerAccount);
+            var tokenToBuy = 1;
+            var etherToPay = String(1);
+
+            await crowdFunding.buyToken(_secondAccount, tokenToBuy,
+                {from: _secondAccount, value: web3.utils.toWei( etherToPay, 'ether')});            
+
+            var varBalanceReceiverAfterCFT = await crowdFunding.getBalance(_secondAccount);
+            var varBalanceReceiverAfterETH = await web3.eth.getBalance(_secondAccount);
+            var varBalanceContractAfterETH = await web3.eth.getBalance(await crowdFunding.address);
+            var varBalanceOwnerAfterCFT = await crowdFunding.getBalance(_ownerAccount);
+
+            assert.equal(+varBalanceReceiverAfterCFT , +varBalanceReceiverCFT + tokenToBuy);        
+            assert.equal(+varBalanceReceiverAfterETH, varBalanceReceiverETH - (+priceTokenCFT));
+            assert.equal(+varBalanceOwnerAfterCFT, +varBalanceOwnerCFT - tokenToBuy);
+            assert.equal(+varBalanceContractAfterETH, +varBalanceContractETH + (+priceTokenCFT));
+        });
+
+        it('transfer: when pay eth > to CFT cost should return extra eth to the buyer', async () => {
+            const priceTokenCFT = await crowdFunding.getPriceTokenCFT();
+            var varBalanceReceiverETH = await web3.eth.getBalance(_secondAccount);
+            var tokenToBuy = 1;
+            var etherToPay = String(3);
             
-    //         await crowdFunding.buyToken1(_thirdAccount, 1, {from: _ownerAccount});
-    //         //  console.log(await crowdFunding.owner());
-    //         var tempVar = await crowdFunding.getBalance(_ownerAccount);
-    //         assert.equal(10, +tempVar);
-
+            await crowdFunding.buyToken(_secondAccount, tokenToBuy,
+                {from: _secondAccount, value: web3.utils.toWei( etherToPay, 'ether')});
+                
+            var varBalanceReceiverAfterETH = await web3.eth.getBalance(_secondAccount);
             
-    //         //await crowdFunding.buyToken1(1,_thirdAccount , {from: _ownerAccount} );
-            
-    //         // var vart = crowdFunding.buyToken2();
-    //         // console.log(vart.toString());
-            
+            assert.equal(+varBalanceReceiverAfterETH, varBalanceReceiverETH - (+priceTokenCFT));
 
-    //         var varBalance = await crowdFunding.getBalance(_thirdAccount);
-    //         assert.equal(1 , +varBalance);
+        });
 
-    //     });
+        it('transfer: when pay eth < to CFT cost should be fail', async () => {            
+                var tokenToBuy = 1;
+                var etherToPay = String(0.5);
+                
+                await crowdFunding.buyToken(_secondAccount, tokenToBuy, 
+                    {
+                        from: _secondAccount, 
+                        value: web3.utils.toWei( etherToPay, 'ether')
+                    }).should.be.rejectedWith(ERROR_MSG);
 
-    //     // it('Second Account should get balance 0', async () => {      
+        });
+        it('transfer: when CFT=0  should be fail', async () => {
+        // Ver como usuar fake Contract
+        });
 
-    //     //     const varBalance = await crowdFunding.getBalance(_secondAccount);            
-    //     //     assert.equal(0 , +varBalance);
-    //     // });
-    // });
+    });
+
+    describe("Exchange Token CFT to ETH", function(){
+        it('transfer: should return eth to the buyer and contract should have less ETH', async () => {
+
+        });
+
+        it('transfer: when return eth < to CFT cost should be fail', async () => {
+
+        });
+    });
 
     describe("Buy Ticket to the lottery CrowdFunding", function(){
         
-        it('should not buy ticket in CloseCrowdFunding', async () => {                
+        it('should not buy ticket in CloseCrowdFunding close state', async () => {                
             await crowdFunding.buyTicketLottery(_secondAccount,
                 {from: _secondAccount}).should.be.rejectedWith(ERROR_MSG);
         });
@@ -211,6 +243,7 @@ describe("CrowdFunding contract", function () {
         
             const varGetNumerTicketLotteryAssigned1 = await crowdFunding.getAllNumberTicketLotteryPerson(_thirdAccount);
             assert.equal(2 , varGetNumerTicketLotteryAssigned1.length);
+            
         });
     });
 
