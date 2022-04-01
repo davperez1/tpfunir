@@ -46,19 +46,14 @@ const App = {
 
   updateDataView: async function() {
     var resu = await this.crowdFundingContract.methods.getDataCrowdFunding().call();
+    var totalETH = await this.crowdFundingContract.methods.getBalanceETH().call();
     document.getElementById('nombreCrowdFundingID').innerHTML = resu[0];
     document.getElementById('cantTokenForExchangeID').innerHTML = resu[1];
     document.getElementById('cantTokenForToTheWinnerID').innerHTML = resu[2];
     document.getElementById('stateCanFundID').innerHTML = resu[3];
     document.getElementById('cantTotalTokenID').innerHTML = resu[4];
-  },
+    document.getElementById('totalETHID').innerHTML = this.web3.utils.fromWei(totalETH);
 
-  updateViewUser: async function() {      
-    var bal = await this.web3.eth.getBalance(this.userAccount);
-    document.getElementById('addressAccountID-user').innerHTML = this.userAccount;
-    document.getElementById('cantETHID-user').innerHTML = this.web3.utils.fromWei(bal);
-    document.getElementById('cantCFTID-user').innerHTML = 0 ;
-    document.getElementById('cantNumeroCompradosID-user').innerHTML = 0 ;
   },
 
   guardarToken: async function() {
@@ -97,10 +92,38 @@ const App = {
     })
     .on("error", () => {
       windows.alert("error")
+    }); 
+  
+    App.updateDataView();  
+  },
+
+  updateViewUser: async function() {      
+    var balanceETH = await this.web3.eth.getBalance(this.userAccount);
+    var balanceCFT = await this.crowdFundingContract.methods.getBalance(this.userAccount).call();
+    var priceTokenCFT = await this.crowdFundingContract.methods.getPriceTokenCFT().call();
+
+    document.getElementById('addressAccountID-user').innerHTML = this.userAccount;
+    document.getElementById('cantETHID-user').innerHTML = this.web3.utils.fromWei(balanceETH);
+    document.getElementById('priceTokenCFTID').innerHTML = this.web3.utils.fromWei(priceTokenCFT);
+    document.getElementById('cantCFTID-user').innerHTML = balanceCFT ;
+    document.getElementById('cantNumeroCompradosID-user').innerHTML = 0 ;
+  },
+
+  buyTokenCFT: async function(){
+
+    await this.crowdFundingContract.methods.buyToken(this.userAccount, parseInt(1))
+      .send({from: this.userAccount, value: this.web3.utils.toWei( String(1), 'ether')})
+      .once("recepient", (recepient) =>{
+      console.log("success");
+    })
+    .on("error", () => {
+      window.alert("error")
     });
 
-    App.updateDataView();  
-  }
+    App.updateViewUser();
+  },
+
+
 };
 
 window.App = App;
@@ -122,37 +145,3 @@ window.addEventListener("load", function() {
 
   App.start();
 });
-
-// var accounts;
-// var cuentaUsuario;
-
-// async function start() {
-//     window.addEventListener('load', async () => {
-//         if (window.ethereum) {
-//             console.log("Metamask detected!");
-//             web3 = new Web3(window.ethereum);
-//             await window.ethereum.enable();
-            
-//             accounts = await web3.eth.getAccounts();
-//             cuentaUsuario = accounts[0];
-//             document.getElementById('addressAccountID').innerHTML = cuentaUsuario;
-                                            
-//             // instanciaCrowdFundingContract = new web3.eth.Contract(
-//             //   ABI_CROWDFUNDING, addressCrowdFunding);
-            
-//             updateDataView();
-//         }
-//         else{
-//             console.log("no se puede conectar a metamask");
-//         }
-//     });
-// }
-
-// async function updateDataView(){
-//     var bal = await web3.eth.getBalance(accounts[0]);
-//     document.getElementById('cantETHID').innerHTML = web3.utils.fromWei(bal);
-//     document.getElementById('cantCFTID').innerHTML = 0 ;
-//     document.getElementById('cantNumeroCompradosID').innerHTML = 0 ;
-//     }
-
-// start(); 

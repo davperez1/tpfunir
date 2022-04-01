@@ -57,6 +57,14 @@
                             </div>
                         </span>                    
                     </td>
+                    <td colspan="2">
+                        <span style="font-weight:bold">
+                            <div id="resultado">
+                                <label>Total ETH cambiado por Token:</label>
+                                <label id="totalETHID">Total Token Vendidos (ETH)</label>
+                            </div>
+                        </span>                    
+                    </td>
                   </tr>
             </table>    
             <br>
@@ -101,13 +109,25 @@
             <br>
             <br>
             <br>
-
-            <tr>
-                <td colspan="2">
-                  <span style="font-weight:bold">Guardar Cambios</span>
-                  <input type="button" value="Actualizar Vista Usuario" onclick="App.updateViewUser()">
-                </td>              
-              </tr>  
+            <br>
+            <table>
+                <tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="button" value="Actualizar Vista Usuario" onclick="App.updateViewUser()">                        
+                        </td>                                
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="button" value="Comprar TOKEN" onclick="App.buyTokenCFT()">
+                            <input id="buyTokenCFTID" type="text"/>
+                            <label>Precio Token (ETH):</label>
+                                <label id="priceTokenCFTID">ETH</label> 
+                            <br/>                          
+                        </td>                
+                    </tr> 
+                </tr>
+            </table>
             <table class="tftable1" border="1">
                 <tr>
                   <td colspan="2">
@@ -121,7 +141,7 @@
                   <td colspan="2">
                         <span style="font-weight:bold">
                             <div id="resultado">
-                                <label>Cant ETH:</label>
+                                <label>ETH:</label>
                                 <label id="cantETHID-user">Cantidad eth</label>
                             </div>
                         </span>                    
@@ -130,7 +150,7 @@
                     <td colspan="2">
                         <span style="font-weight:bold">
                             <div id="resultado">
-                                <label>Token CFT</label>
+                                <label>Token CFT:</label>
                                 <label id="cantCFTID-user">Cantidad Token Comprado</label>
                             </div>
                         </span>                    
