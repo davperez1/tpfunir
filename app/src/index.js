@@ -21,7 +21,8 @@ const App = {
       this.userAccount = accounts[0];
 
       document.getElementById('addressAccountID').innerHTML = this.userAccount;
-      this.updateDataView();  
+      this.updateDataView();
+      this.updateViewUser();  
 
     } catch (error) {
       console.log(error);
@@ -110,9 +111,12 @@ const App = {
   },
 
   buyTokenCFT: async function(){
+    var tokenToBuy = 1;
+    var ethForPay = 1;
+    // Fix for buy more token
 
-    await this.crowdFundingContract.methods.buyToken(this.userAccount, parseInt(1))
-      .send({from: this.userAccount, value: this.web3.utils.toWei( String(1), 'ether')})
+    await this.crowdFundingContract.methods.buyToken(this.userAccount, parseInt(tokenToBuy))
+      .send({from: this.userAccount, value: this.web3.utils.toWei( String(ethForPay), 'ether')})
       .once("recepient", (recepient) =>{
       console.log("success");
     })
@@ -142,6 +146,11 @@ window.addEventListener("load", function() {
       new Web3.providers.HttpProvider("http://127.0.0.1:8545"),
     );
   }
+
+  // Event when change account in Metamask
+  ethereum.on('accountsChanged', function (accounts) {
+    App.start();
+  })
 
   App.start();
 });

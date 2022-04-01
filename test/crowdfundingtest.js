@@ -169,6 +169,30 @@ describe("CrowdFunding contract", function () {
             assert.equal(+varBalanceContractAfterETH, +varBalanceContractETH + (+priceTokenCFT));
         });
 
+        it('transfer: should transfer 2 or more CFT to buyer and contract should have more ETH', async () => {            
+            const priceTokenCFT = await crowdFunding.getPriceTokenCFT();
+            var varBalanceReceiverCFT = await crowdFunding.getBalance(_secondAccount);
+            var varBalanceReceiverETH = await web3.eth.getBalance(_secondAccount);
+            var varBalanceContractETH = await web3.eth.getBalance(await crowdFunding.address);
+            var varBalanceOwnerCFT = await crowdFunding.getBalance(_ownerAccount);
+            var tokenToBuy = 3;
+            var etherToPay = String(3);
+
+            await crowdFunding.buyToken(_secondAccount, tokenToBuy,
+                {from: _secondAccount, value: web3.utils.toWei( etherToPay, 'ether')});            
+
+            var varBalanceReceiverAfterCFT = await crowdFunding.getBalance(_secondAccount);
+            var varBalanceReceiverAfterETH = await web3.eth.getBalance(_secondAccount);
+            var varBalanceContractAfterETH = await web3.eth.getBalance(await crowdFunding.address);
+            var varBalanceOwnerAfterCFT = await crowdFunding.getBalance(_ownerAccount);
+
+            assert.equal(+varBalanceReceiverAfterCFT , +varBalanceReceiverCFT + tokenToBuy);        
+            assert.equal(+varBalanceReceiverAfterETH, varBalanceReceiverETH - (+priceTokenCFT * 3));
+            assert.equal(+varBalanceOwnerAfterCFT, +varBalanceOwnerCFT - tokenToBuy);
+            assert.equal(+varBalanceContractAfterETH, +varBalanceContractETH + (+priceTokenCFT * 3));
+        });
+
+
         it('transfer: when pay eth > to CFT cost should return extra eth to the buyer', async () => {
             const priceTokenCFT = await crowdFunding.getPriceTokenCFT();
             var varBalanceReceiverETH = await web3.eth.getBalance(_secondAccount);

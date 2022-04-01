@@ -86,8 +86,9 @@ contract CrowdFunding is Ownable {
     function buyToken(address payable _buyer, uint cantToken) public payable {
         require(msg.value >= priceTokenCFT);
         require(cantTokenForExchange > 0);
-        
-        uint returnValue = msg.value - priceTokenCFT;
+        uint totalPriceToken = priceTokenCFT * cantToken;
+
+        uint returnValue = msg.value - totalPriceToken;
         if (returnValue > 0){
             _buyer.transfer(returnValue);
         }                    
