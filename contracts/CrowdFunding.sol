@@ -105,26 +105,31 @@ contract CrowdFunding is Ownable {
 
     function buyTicketLottery() public {                
         require(stateCanFund == true);
-        require(this.getBalanceCFT(msg.sender) > this.getPriceTicketLottery());
+        require(this.getBalanceCFT(msg.sender) >= this.getPriceTicketLottery());
 
         _numberTicket.increment();
         personAddress_NumberTicketMap[msg.sender].push(_numberTicket.current());
         numberTicketAssigned_personAddressMap[_numberTicket.current()] = msg.sender;
 
-        token.transferCFT(msg.sender, address(this), 2);
+        token.transferCFT(msg.sender, address(this), this.getPriceTicketLottery());
+
     }
 
     function getCantTicketTotalLottery() view public returns(uint256) {        
         return _numberTicket.current();
     }
 
-    function getAllNumberTicketLotteryPerson(address account) view public returns(uint256 [] memory) {
-        return personAddress_NumberTicketMap[account];
+    function getCantTicketLotteryFromAccount(address account) view public returns(uint256) {
+        return personAddress_NumberTicketMap[account].length;
     }
     
     function getAddressFromNumberLotteryAssigned(
         uint256 _number) view public returns(address) {
         return numberTicketAssigned_personAddressMap[_number];
+    }
+
+    function getListNumberTicketAssigned(address account) view public returns(uint256 [] memory) {
+        return personAddress_NumberTicketMap[account];
     }
 
     function closeCrowdFundingAndPickTheWinner() public onlyOwner{

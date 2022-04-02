@@ -252,7 +252,7 @@ describe("CrowdFunding contract", function () {
                 .should.be.rejectedWith(ERROR_MSG);            
         });
 
-        it('should buy one ticket lottery and Contract should be have more Token CFT', async () => {
+        it('Account should buy one ticket lottery and Contract should be have more Token CFT', async () => {
             await crowdFunding.openCrowdFunding();
             const balanceCFTAccountBeforeBuyTicket = await crowdFunding.getBalanceCFT(_secondAccount);
             const cantTotalTicketBeforeBuyLTicketotterySold = await crowdFunding.getCantTicketTotalLottery();
@@ -267,48 +267,47 @@ describe("CrowdFunding contract", function () {
 
             const balanceCFTAccountAfterBuyTicket = await crowdFunding.getBalanceCFT(_secondAccount);
             const cantTotalTicketAfterBuyLTicketotterySold = await crowdFunding.getCantTicketTotalLottery();
-            const balanceContractAfterCFT = await crowdFunding.getBalanceCFT(await crowdFunding.address); 
+            const balanceContractAfterCFT = await crowdFunding.getBalanceCFT(await crowdFunding.address);
+            const cantTicketLotteryFromAccount = await crowdFunding.getCantTicketLotteryFromAccount( _secondAccount );
 
             assert.equal(+cantTotalTicketAfterBuyLTicketotterySold, 
                 +cantTotalTicketBeforeBuyLTicketotterySold + cantTicketLotteryBuy);
             assert.equal(+balanceCFTAccountAfterBuyTicket, +balanceCFTAccountBeforeBuyTicket);
             assert.equal(+balanceContractAfterCFT, +balanceContractBeforeCFT + twoTokenToBuy);
+            assert.equal(cantTicketLotteryBuy, +cantTicketLotteryFromAccount );
         });
 
-        it('Should buy one ticket lottery', async () => {            
-            // await crowdFunding.openCrowdFunding();      
-            // const cantTotalTicketBeforeBuyLTicketotterySold = await crowdFunding.getCantTicketTotalLottery();
-            // const cantBuyTicketLotteryInThisTest = 2;
-            // await crowdFunding.buyTicketLottery({ from: _secondAccount });
-            // await crowdFunding.buyTicketLottery({ from: _thirdAccount });
+        it('Should buy one ticket lottery an number ticket assigned', async () => {            
+            const fourTokenToBuy = 4;
+            const etherToPay = String(8) ;
+            await crowdFunding.buyToken(_secondAccount, fourTokenToBuy,
+                {from: _secondAccount, value: web3.utils.toWei( etherToPay, 'ether')});
 
-            // const cantTotalTicketAfterBuyTicketLotterySold = await crowdFunding.getCantTicketTotalLottery();
-            // assert.equal(+cantTotalTicketAfterBuyTicketLotterySold , cantTotalTicketBeforeBuyLTicketotterySold +
-            //     cantBuyTicketLotteryInThisTest );
+            await crowdFunding.buyTicketLottery({ from: _secondAccount });
 
-            // const varGetNumerTicketLotteryAssigned = await crowdFunding.getAllNumberTicketLotteryPerson(_secondAccount);
-            // assert.equal(1 , +varGetNumerTicketLotteryAssigned[0]);
-
-            // const varGetAddressFromNumberAssigned = await crowdFunding.getAddressFromNumberLotteryAssigned(1);
-            // assert.equal(_secondAccount , varGetAddressFromNumberAssigned);
+            var numberTicketAssignedLottery = await crowdFunding.getListNumberTicketAssigned(_secondAccount);
+            var cantTicketFromAccount = await crowdFunding.getCantTicketLotteryFromAccount(_secondAccount);
+            assert.equal(1, numberTicketAssignedLottery[0]);
+            assert.isTrue(0 < cantTicketFromAccount);            
         });
+    });
+    
+    describe("Buy Ticket to the lottery CrowdFunding", function(){
+        //abrir crowdfunding
+        //agregar tres compradores
+        //verificar que haya tres numeros
+        //verificar que haya un ganador
+        //devolver los tokenes a los dueños de tickets
+        //darle al ganador los tokenes de premios
+    });
+    
 
-        // it('Should buy two ticket lottery', async () => {
-        //     await crowdFunding.openCrowdFunding();                  
-        //     await crowdFunding.buyTicketLottery(_thirdAccount);
-
-        //     const varGetNumerTicketLotteryAssigned = await crowdFunding.getAllNumberTicketLotteryPerson(_secondAccount);
-        //     assert.equal(1 , varGetNumerTicketLotteryAssigned.length);
-        
-        //     const varGetNumerTicketLotteryAssigned1 = await crowdFunding.getAllNumberTicketLotteryPerson(_thirdAccount);
-        //     assert.equal(2 , varGetNumerTicketLotteryAssigned1.length);
-            
-        // });
+    describe("Buy Ticket to the lottery CrowdFunding", function(){
     });
 
-    //agregar mas compradores
-    //sortear
-    //verificar que sea el que ha comprado
-
+    describe("Retiro de ETH recaudado", function(){
+    });
+    describe("Fondeo de ETH para devolucion a los dueños de Tokenes ", function(){
+    });
     //TODO: BURN TOKEN
 });

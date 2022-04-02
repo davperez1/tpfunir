@@ -47,7 +47,7 @@ const App = {
 
   updateDataView: async function() {
     var resu = await this.crowdFundingContract.methods.getDataCrowdFunding().call();
-    var totalETH = await this.crowdFundingContract.methods.getBalanceETH().call();
+    var totalETH = await this.crowdFundingContract.methods.getBalanceCrowdFundingETH().call();
     document.getElementById('nombreCrowdFundingID').innerHTML = resu[0];
     document.getElementById('cantTokenForExchangeID').innerHTML = resu[1];
     document.getElementById('cantTokenForToTheWinnerID').innerHTML = resu[2];
@@ -99,15 +99,32 @@ const App = {
   },
 
   updateViewUser: async function() {      
-    var balanceETH = await this.web3.eth.getBalance(this.userAccount);
-    var balanceCFT = await this.crowdFundingContract.methods.getBalance(this.userAccount).call();
+
     var priceTokenCFT = await this.crowdFundingContract.methods.getPriceTokenCFT().call();
+    var priceTicketLottery = await this.crowdFundingContract.methods.getPriceTicketLottery().call();
+
+    var balanceETHAccount = await this.web3.eth.getBalance(this.userAccount);
+    var balanceCFTAccount = await this.crowdFundingContract.methods.getBalanceCFT(this.userAccount).call();
+    var cantTicketLotteryBuy = await this.crowdFundingContract.methods.getCantTicketLotteryFromAccount(
+      this.userAccount).call();
+    var numberAssignedTicketLottery = await this.crowdFundingContract.methods.getListNumberTicketAssigned(
+      this.userAccount).call();    
+    
+    document.getElementById('priceTokenCFTID').innerHTML = this.web3.utils.fromWei(String(priceTokenCFT));
+    document.getElementById('priceTicketLotteryID').innerHTML = priceTicketLottery;
 
     document.getElementById('addressAccountID-user').innerHTML = this.userAccount;
-    document.getElementById('cantETHID-user').innerHTML = this.web3.utils.fromWei(balanceETH);
-    document.getElementById('priceTokenCFTID').innerHTML = this.web3.utils.fromWei(priceTokenCFT);
-    document.getElementById('cantCFTID-user').innerHTML = balanceCFT ;
-    document.getElementById('cantNumeroCompradosID-user').innerHTML = 0 ;
+    document.getElementById('cantETHID-user').innerHTML = this.web3.utils.fromWei(String(balanceETHAccount));
+    document.getElementById('cantCFTCompradoID-user').innerHTML = balanceCFTAccount ;
+    document.getElementById('cantTicketLotteryCompradosID-user').innerHTML = cantTicketLotteryBuy ;
+
+    console.log(cantTicketLotteryBuy);
+    
+    document.getElementById('numberTicketAsignedID-user').innerHTML = numberAssignedTicketLottery;
+    console.log(numberAssignedTicketLottery);
+    console.log(+numberAssignedTicketLottery);
+
+
   },
 
   buyTokenCFT: async function(){
@@ -126,6 +143,19 @@ const App = {
 
     App.updateViewUser();
   },
+
+  buyTicketLottery: async function(){
+    await this.crowdFundingContract.methods.buyTicketLottery()
+      .send({from: this.userAccount})
+      .once("recepient", (recepient) =>{
+      console.log("success");
+    })
+    .on("error", () => {
+      window.alert("error")
+    });
+
+    App.updateViewUser();
+  }
 
 
 };

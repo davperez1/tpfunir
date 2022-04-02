@@ -60,7 +60,7 @@
                     <td colspan="2">
                         <span style="font-weight:bold">
                             <div id="resultado">
-                                <label>Total ETH cambiado por Token:</label>
+                                <label>Total ETH cambiado por Token CFT:</label>
                                 <label id="totalETHID">Total Token Vendidos (ETH)</label>
                             </div>
                         </span>                    
@@ -125,7 +125,15 @@
                                 <label id="priceTokenCFTID">ETH</label> 
                             <br/>                          
                         </td>                
-                    </tr> 
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="button" value="Comprar 1 TICKET" onclick="App.buyTicketLottery()">
+                            <label>Precio Ticket Lottery (CFT):</label>
+                                <label id="priceTicketLotteryID">ETH</label> 
+                            <br/>                          
+                        </td>                
+                    </tr>
                 </tr>
             </table>
             <table class="tftable1" border="1">
@@ -142,7 +150,7 @@
                         <span style="font-weight:bold">
                             <div id="resultado">
                                 <label>ETH:</label>
-                                <label id="cantETHID-user">Cantidad eth</label>
+                                <label id="cantETHID-user">Cantidad eth de Usuario</label>
                             </div>
                         </span>                    
                     </td>
@@ -150,8 +158,8 @@
                     <td colspan="2">
                         <span style="font-weight:bold">
                             <div id="resultado">
-                                <label>Token CFT:</label>
-                                <label id="cantCFTID-user">Cantidad Token Comprado</label>
+                                <label>Token CFT Comprado:</label>
+                                <label id="cantCFTCompradoID-user">Cantidad Token Comprado</label>
                             </div>
                         </span>                    
                     </td>
@@ -159,8 +167,8 @@
                     <td colspan="2">
                         <span style="font-weight:bold">
                             <div id="resultado">
-                                <label>Numeros Comprados:</label>
-                                <label id="cantNumeroCompradosID-user">Cantidad Numeros Comprados:</label>
+                                <label>Cantidad de Ticket Lottery:</label>
+                                <label id="cantTicketLotteryCompradosID-user">Cantidad de Ticket Lottery</label>
                             </div>
                         </span>                    
                     </td>
@@ -168,8 +176,8 @@
                     <td colspan="2">
                         <span style="font-weight:bold">
                             <div id="resultado">
-                                <label>Cantidad de Token para el Ganador:</label>
-                                <label id="cantTokenForToTheWinnerID-user">Cantidad de Token para el Ganador</label>
+                                <label>Números Asignados de Tickets:</label>
+                                <label id="numberTicketAsignedID-user">Números Asignados de Tickets</label>
                             </div>
                         </span>                    
                     </td>                
