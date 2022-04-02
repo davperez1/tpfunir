@@ -13,6 +13,7 @@ contract CrowdFunding is Ownable {
     uint256 private cantTokenToTheWinner;
     bool private stateCanFund;
     uint256 private priceTokenCFT;
+    uint256 private priceTicketLottery;
     using Counters for Counters.Counter;
     Counters.Counter private _numberTicket;
     mapping (address => uint256 []) personAddress_NumberTicketMap;
@@ -30,6 +31,7 @@ contract CrowdFunding is Ownable {
         stateCanFund = false;
         token.approve(address(this), 0);
         priceTokenCFT = 1 ether;
+        priceTicketLottery = 2;
     }
 
     function setNameCrowdFunding(string memory _name) public onlyOwner {
@@ -46,7 +48,11 @@ contract CrowdFunding is Ownable {
         return priceTokenCFT;
     }
 
-    function totalToken() public view returns (uint256) {
+    function getPriceTicketLottery() public view returns(uint256) {
+        return priceTicketLottery;
+    }
+
+    function getTotalGeneratedToken() public view returns (uint256) {
         return token.totalSupply();
     }
 
@@ -75,18 +81,18 @@ contract CrowdFunding is Ownable {
         stateCanFund = false;
     }
 
-    function getBalance(address account) view public returns (uint256){
+    function getBalanceCFT(address account) view public returns (uint256){
         return token.balanceOf(account);
     }
 
-    function getBalanceETH() view public returns(uint256){
+    function getBalanceCrowdFundingETH() view public returns(uint256){
         return (address(this).balance);
     }
 
     function buyToken(address payable _buyer, uint cantToken) public payable {
-        require(msg.value >= priceTokenCFT);
-        require(cantTokenForExchange > 0);
         uint totalPriceToken = priceTokenCFT * cantToken;
+        require(msg.value >= totalPriceToken);
+        require(cantTokenForExchange > 0);        
 
         uint returnValue = msg.value - totalPriceToken;
         if (returnValue > 0){
@@ -97,14 +103,15 @@ contract CrowdFunding is Ownable {
         cantTokenForExchange -= cantToken;
     }
 
-    function buyTicketLottery(address account) public {
-        // controlar que tenga token para comprar un ticket
-        // actualizar token juntado por venta        
-        require(stateCanFund == true);        
-        
+    function buyTicketLottery() public {                
+        require(stateCanFund == true);
+        require(this.getBalanceCFT(msg.sender) > this.getPriceTicketLottery());
+
         _numberTicket.increment();
-        personAddress_NumberTicketMap[account].push(_numberTicket.current());
-        numberTicketAssigned_personAddressMap[_numberTicket.current()] = account;
+        personAddress_NumberTicketMap[msg.sender].push(_numberTicket.current());
+        numberTicketAssigned_personAddressMap[_numberTicket.current()] = msg.sender;
+
+        token.transferCFT(msg.sender, address(this), 2);
     }
 
     function getCantTicketTotalLottery() view public returns(uint256) {        
