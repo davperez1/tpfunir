@@ -337,10 +337,12 @@ contract("CrowdFunding- lottery",  accounts => {
         //darle al ganador los tokenes de premios
 
         //check crowdfunding close para realizar el sorteo
+        //TODO: eliminar todos los tickets devueltos
+        
 
         it('there should be a winner', async () => {
             const tokenToBuy = 2;
-            const etherToPay = String(2);
+            const etherToPay = String(2);            
 
             await crowdFunding.buyToken(_secondAccount, tokenToBuy,
                 {from: _secondAccount, value: web3.utils.toWei( etherToPay, 'ether')});
@@ -364,6 +366,7 @@ contract("CrowdFunding- lottery",  accounts => {
             assert.equal(1, +cantTicketLotteryFromfourthAccount);
             assert.equal(3, +cantTotalTicketAfterBuyLTicketotterySold);
 
+            await crowdFunding.closeCrowdFunding();
             await crowdFunding.makeLottery();
 
             const result = await crowdFunding.getDataCrowdFunding();

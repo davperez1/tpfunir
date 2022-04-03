@@ -151,6 +151,7 @@ contract CrowdFunding is Ownable {
     //devolver tokenes a todos los participantes
     //darle al ganador el premio
     require(_numberTicket.current()>0);
+    require(_stateCanFund == false);
     // genera número entere 0 y current() - 1
     uint numberWinner = uint(uint(keccak256(abi.encodePacked(block.timestamp))) % _numberTicket.current());
     numberWinner++;

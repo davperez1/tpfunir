@@ -99,7 +99,6 @@ const App = {
   },
 
   updateViewUser: async function() {      
-
     var priceTokenCFT = await this.crowdFundingContract.methods.getPriceTokenCFT().call();
     var priceTicketLottery = await this.crowdFundingContract.methods.getPriceTicketLottery().call();
 
@@ -121,10 +120,6 @@ const App = {
     console.log(cantTicketLotteryBuy);
     
     document.getElementById('numberTicketAsignedID-user').innerHTML = numberAssignedTicketLottery;
-    console.log(numberAssignedTicketLottery);
-    console.log(+numberAssignedTicketLottery);
-
-
   },
 
   buyTokenCFT: async function(){
@@ -155,8 +150,25 @@ const App = {
     });
 
     App.updateViewUser();
-  }
+  },
 
+  makeLottery: async function() {
+    await this.crowdFundingContract.methods.makeLottery()
+    .send({from: this.userAccount})
+    .once("recepient", (recepient) =>{
+      console.log("success");
+    })
+    .on("error", () => {
+      windows.alert("error")
+    });
+  App.updateDataWinnerView();   
+  },
+
+  updateDataWinnerView: async function(){
+    var getWinnerLottery = await this.crowdFundingContract.methods.getWinnerLottery().call();
+    document.getElementById('addressWinnerLotteryID').innerHTML = getWinnerLottery.accountWinner;
+    document.getElementById('numberWinnerID').innerHTML = getWinnerLottery.numberWinner;
+  }   
 
 };
 
