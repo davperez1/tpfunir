@@ -1,4 +1,5 @@
 const { assert, AssertionError } = require('chai');
+const { ContextReplacementPlugin } = require('webpack');
 
 const CrowdFunding = artifacts.require ("CrowdFunding");
 
@@ -7,7 +8,7 @@ require('chai')
     .should();
 const ERROR_MSG = 'VM Exception while processing transaction: revert';
 
-describe("CrowdFunding contract", function () {
+describe.skip("CrowdFunding contract", function () {
     let accounts;
     let _ownerAccount;
     let _secondAccount;
@@ -38,7 +39,7 @@ describe("CrowdFunding contract", function () {
     describe("Set Name CrowdFunding", function() {
     
         it('should sets name of the CrowdFunding', async () => {                        
-            const varName = "Este es un crowdfunding de prueba";            
+            const varName = "Este es un crowdfunding de prueba";
 
             await crowdFunding.setNameCrowdFunding(varName);
             const result = await crowdFunding.getDataCrowdFunding.call()
@@ -72,7 +73,7 @@ describe("CrowdFunding contract", function () {
             const newTokenToTheWinner1 = 5;
             
             const tokenInitialCero = await crowdFunding.getTotalGeneratedToken.call();
-            await crowdFunding.addToken(newTokenForExchange, newTokenToTheWinner);        
+            await crowdFunding.addToken(newTokenForExchange, newTokenToTheWinner, { from: _ownerAccount });        
             const result = await crowdFunding.getDataCrowdFunding.call();
             
             assert.equal(+result[4].toString(), 
@@ -82,7 +83,7 @@ describe("CrowdFunding contract", function () {
             assert.equal(+result[1],newTokenForExchange);
             assert.equal(+result[2],newTokenToTheWinner);
 
-            await crowdFunding.addToken(newTokenForExchange1, newTokenToTheWinner1);        
+            await crowdFunding.addToken(newTokenForExchange1, newTokenToTheWinner1, { from: _ownerAccount });        
             const result1 = await crowdFunding.getDataCrowdFunding.call();
             
             assert.equal(+result1[4].toString(), 
@@ -96,13 +97,13 @@ describe("CrowdFunding contract", function () {
         });       
         
         it('It should not can data entry invalid data', async () => {                                    
-            await crowdFunding.addToken(0, 0)
+            await crowdFunding.addToken(0, 0, { from: _ownerAccount })
                 .should.be.rejectedWith(ERROR_MSG);
-            await crowdFunding.addToken(0, 50)
+            await crowdFunding.addToken(0, 50, { from: _ownerAccount })
                 .should.be.rejectedWith(ERROR_MSG);
-            await crowdFunding.addToken("dfe", 0)
+            await crowdFunding.addToken("dfe", 0, { from: _ownerAccount })
                 .should.be.rejected;
-            await crowdFunding.addToken("dfe", "")
+            await crowdFunding.addToken("dfe", "", { from: _ownerAccount })
                 .should.be.rejected;
         });
     });
@@ -156,7 +157,7 @@ describe("CrowdFunding contract", function () {
             var etherToPay = String(1);
 
             await crowdFunding.buyToken(_secondAccount, tokenToBuy,
-                {from: _secondAccount, value: web3.utils.toWei( etherToPay, 'ether')});          
+                {from: _secondAccount, value: web3.utils.toWei( etherToPay, 'ether')});
 
             var varBalanceReceiverAfterCFT = await crowdFunding.getBalanceCFT(_secondAccount);
             var varBalanceReceiverAfterETH = await web3.eth.getBalance(_secondAccount);
@@ -292,22 +293,92 @@ describe("CrowdFunding contract", function () {
         });
     });
     
-    describe("Buy Ticket to the lottery CrowdFunding", function(){
+
+    
+
+    describe("retire fund ETH from of the Contract Crowdfunding", function(){
+        //retiro existoso cuando el contracto está cerrado
+        //solo Owner
+    });
+    
+    describe("Deposit ETH to the Contract CrowdFunding", function(){
+        //deposito exitoso
+        //solo Owner
+    });
+    //TODO: BURN TOKEN
+});
+
+contract("CrowdFunding- lottery",  accounts => {
+    //let accounts;
+    let _ownerAccount;
+    let _secondAccount;
+    let _thirdAccount;
+    let crowdFunding;
+
+    before (async function () {
+        // accounts = await web3.eth.getAccounts();
+        _ownerAccount = accounts[0];
+        _secondAccount = accounts[1];
+        _thirdAccount = accounts[2];
+        _fourthAccount = accounts[3];
+        crowdFunding = await CrowdFunding.new();
+        const name = "Este es un crowdfunding de prueba";
+        const newTokenForExchange = 20;
+        const newTokenToTheWinner = 15;
+        await crowdFunding.addToken(newTokenForExchange, newTokenToTheWinner, { from: _ownerAccount });
+        await crowdFunding.setNameCrowdFunding(name, { from: _ownerAccount });
+        await crowdFunding.openCrowdFunding({ from: _ownerAccount });
+
+    });
+
+
+    describe("One Winner Lottery Crowdfunding", function(){
         //abrir crowdfunding
         //agregar tres compradores
         //verificar que haya tres numeros
         //verificar que haya un ganador
         //devolver los tokenes a los dueños de tickets
         //darle al ganador los tokenes de premios
-    });
-    
 
-    describe("Buy Ticket to the lottery CrowdFunding", function(){
+        //check crowdfunding open para realizar el sorteo
+
+        it('there should be a winner', async () => {
+            const tokenToBuy = 2;
+            const etherToPay = String(2);
+
+            await crowdFunding.buyToken(_secondAccount, tokenToBuy,
+                {from: _secondAccount, value: web3.utils.toWei( etherToPay, 'ether')});
+            await crowdFunding.buyToken(_secondAccount, tokenToBuy,
+                {from: _thirdAccount, value: web3.utils.toWei( etherToPay, 'ether')});
+            await crowdFunding.buyToken(_secondAccount, tokenToBuy,
+                {from: _fourthAccount, value: web3.utils.toWei( etherToPay, 'ether')});
+                
+            await crowdFunding.buyTicketLottery({ from: _secondAccount });
+            await crowdFunding.buyTicketLottery({ from: _thirdAccount });
+            await crowdFunding.buyTicketLottery({ from: _fourthAccount });
+
+            const cantTicketLotteryFromSecondAccount = await crowdFunding.getCantTicketLotteryFromAccount( _secondAccount );
+            const cantTicketLotteryFromthirdAccount = await crowdFunding.getCantTicketLotteryFromAccount( _thirdAccount );
+            const cantTicketLotteryFromfourthAccount = await crowdFunding.getCantTicketLotteryFromAccount( _fourthAccount );
+            const cantTotalTicketAfterBuyLTicketotterySold = await crowdFunding.getCantTicketTotalLottery();
+            assert.equal(1, +cantTicketLotteryFromSecondAccount);
+            assert.equal(1, +cantTicketLotteryFromthirdAccount);
+            assert.equal(1, +cantTicketLotteryFromfourthAccount);
+            assert.equal(3, +cantTotalTicketAfterBuyLTicketotterySold);
+
+            await crowdFunding.makeLottery();
+
+            var winner = await crowdFunding.getWinnerLottery();
+            var numberWinner = winner.numberWinner;
+            var accountWinner = winner.accountWinner;
+            
+            assert.isTrue( 0 < +numberWinner);
+            assert.isNotEmpty(accountWinner);
+            //assert.isTrue( 0 < accountWinner.length);
+                    
+        });
+
+        //No debería haber sorteo si no hay mas de dos participantes
     });
 
-    describe("Retiro de ETH recaudado", function(){
-    });
-    describe("Fondeo de ETH para devolucion a los dueños de Tokenes ", function(){
-    });
-    //TODO: BURN TOKEN
 });

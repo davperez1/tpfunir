@@ -7,133 +7,145 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 pragma solidity ^0.8.0;
 
 contract CrowdFunding is Ownable {
-    CrowdFundingTOKEN private token;
-    string private name;
-    uint256 private cantTokenForExchange;
-    uint256 private cantTokenToTheWinner;
-    bool private stateCanFund;
-    uint256 private priceTokenCFT;
-    uint256 private priceTicketLottery;
+    CrowdFundingTOKEN private _token;
+    string private _name;
+    uint256 private _cantTokenForExchange;
+    uint256 private _cantTokenToTheWinner;
+    bool private _stateCanFund;
+    uint256 private _priceTokenCFT;
+    uint256 private _priceTicketLottery;
     using Counters for Counters.Counter;
     Counters.Counter private _numberTicket;
-    mapping (address => uint256 []) personAddress_NumberTicketMap;
-    mapping (uint256 => address) numberTicketAssigned_personAddressMap;
+    mapping (address => uint256 []) _Address_ListNumberTicketMap;
+    mapping (uint256 => address) _numberTicketAssigned_AddressMap;
 
-    struct WinnerLottery{
+    struct WinnerLotteryStruct{
         address accountWinner;
-        uint256 numerWinner; 
+        uint256 numberWinner; 
     }
-    WinnerLottery private winnerLottery;
+    WinnerLotteryStruct private _winnerLotteryStruct;
+
+    event LogBuyToken(uint indexed date, address indexed _buyer, uint cantToken);
+    event LogBuyTicket(uint indexed date,address indexed from, uint256 priceTicket);    
+    event LogMakeLottery(uint indexed date, address indexed accountWinner, uint numberWinner);
+    event LogAddToken(uint indexed date, uint256 cantAddTokenForExchange, 
+        uint256 cantAddTokenToTheWinner);
     
     constructor() {
-        token = new CrowdFundingTOKEN();
-        name = "";
-        stateCanFund = false;
-        token.approve(address(this), 0);
-        priceTokenCFT = 1 ether;
-        priceTicketLottery = 2;
+        _token = new CrowdFundingTOKEN();
+        _name = "";
+        _stateCanFund = false;
+        _token.approve(address(this), 0);
+        _priceTokenCFT = 1 ether;
+        _priceTicketLottery = 2;
     }
 
-    function setNameCrowdFunding(string memory _name) public onlyOwner {
+    function setNameCrowdFunding(string memory name) public onlyOwner {
         // Verifica que el Nombre no sea nulo
-        require(bytes(_name).length > 0);        
-        name = _name;        
+        require(bytes(name).length > 0);        
+        _name = name;        
     }
 
-    function getDataCrowdFunding() public view returns (string memory, uint256,uint256, bool, uint256) {        
-        return (name, cantTokenForExchange, cantTokenToTheWinner, stateCanFund, token.totalSupply());
+    function getDataCrowdFunding() external view returns (string memory, uint256,uint256, bool, uint256) {        
+        return (_name, _cantTokenForExchange, _cantTokenToTheWinner, _stateCanFund, _token.totalSupply());
     }
 
-    function getPriceTokenCFT() public view returns(uint256) {
-        return priceTokenCFT;
+    function getPriceTokenCFT() external view returns(uint256) {
+        return _priceTokenCFT;
     }
 
-    function getPriceTicketLottery() public view returns(uint256) {
-        return priceTicketLottery;
+    function getPriceTicketLottery() external view returns(uint256) {
+        return _priceTicketLottery;
     }
 
-    function getTotalGeneratedToken() public view returns (uint256) {
-        return token.totalSupply();
+    function getTotalGeneratedToken() external view returns (uint256) {
+        return _token.totalSupply();
     }
 
-    function addToken(uint256 _cantTokenForExchange, 
-        uint256 _cantTokenToTheWinner) public onlyOwner {
+    function addToken(uint256 cantAddTokenForExchange, 
+        uint256 cantAddTokenToTheWinner) external onlyOwner {
 
-        // Verifica valores validos
-        require(_cantTokenForExchange > 0);
-        require(_cantTokenToTheWinner >= 0);
+        require(cantAddTokenForExchange > 0);
+        require(cantAddTokenToTheWinner >= 0);
 
-        token.mint(
+        _token.mint(
                 msg.sender, 
-                _cantTokenForExchange + 
-                _cantTokenToTheWinner)
+                cantAddTokenForExchange + 
+                cantAddTokenToTheWinner)
         ;
-        cantTokenForExchange = cantTokenForExchange + _cantTokenForExchange;
-        cantTokenToTheWinner = cantTokenToTheWinner + _cantTokenToTheWinner;
-        token.increaseAllowance(address(this), cantTokenForExchange);
+        _cantTokenForExchange = _cantTokenForExchange + cantAddTokenForExchange;
+        _cantTokenToTheWinner = _cantTokenToTheWinner + cantAddTokenToTheWinner;
+        _token.increaseAllowance(address(this), _cantTokenForExchange);
+        
+        emit LogAddToken(block.timestamp, cantAddTokenForExchange, cantAddTokenToTheWinner);
+
     }
 
-    function openCrowdFunding() public onlyOwner {
-        stateCanFund = true;
+    function openCrowdFunding() external onlyOwner {
+        _stateCanFund = true;
     }
 
-    function closeCrowdFunding() public  onlyOwner {
-        stateCanFund = false;
+    function closeCrowdFunding() external  onlyOwner {
+        _stateCanFund = false;
     }
 
-    function getBalanceCFT(address account) view public returns (uint256){
-        return token.balanceOf(account);
+    function getBalanceCFT(address account) view external returns (uint256){
+        return _token.balanceOf(account);
     }
 
-    function getBalanceCrowdFundingETH() view public returns(uint256){
+    function getBalanceCrowdFundingETH() view external returns(uint256){
         return (address(this).balance);
     }
 
-    function buyToken(address payable _buyer, uint cantToken) public payable {
-        uint totalPriceToken = priceTokenCFT * cantToken;
+    function buyToken(address payable _buyer, uint cantToken) external payable {
+        uint totalPriceToken = _priceTokenCFT * cantToken;
         require(msg.value >= totalPriceToken);
-        require(cantTokenForExchange > 0);        
+        require(_cantTokenForExchange > 0);        
 
         uint returnValue = msg.value - totalPriceToken;
         if (returnValue > 0){
             _buyer.transfer(returnValue);
         }                    
 
-        token.transferCFT(owner(), msg.sender, cantToken);
-        cantTokenForExchange -= cantToken;
+        _token.transferCFT(owner(), msg.sender, cantToken);
+        _cantTokenForExchange -= cantToken;
+
+        emit LogBuyToken(block.timestamp, _buyer, cantToken);
     }
 
-    function buyTicketLottery() public {                
-        require(stateCanFund == true);
+    function buyTicketLottery() external {                
+        require(_stateCanFund == true);
         require(this.getBalanceCFT(msg.sender) >= this.getPriceTicketLottery());
 
         _numberTicket.increment();
-        personAddress_NumberTicketMap[msg.sender].push(_numberTicket.current());
-        numberTicketAssigned_personAddressMap[_numberTicket.current()] = msg.sender;
+        _Address_ListNumberTicketMap[msg.sender].push(_numberTicket.current());
+        _numberTicketAssigned_AddressMap[_numberTicket.current()] = msg.sender;
 
-        token.transferCFT(msg.sender, address(this), this.getPriceTicketLottery());
+        _token.transferCFT(msg.sender, address(this), this.getPriceTicketLottery());
+
+        emit LogBuyTicket(block.timestamp, msg.sender, this.getPriceTicketLottery());
 
     }
 
-    function getCantTicketTotalLottery() view public returns(uint256) {        
+    function getCantTicketTotalLottery() view external returns(uint256) {        
         return _numberTicket.current();
     }
 
-    function getCantTicketLotteryFromAccount(address account) view public returns(uint256) {
-        return personAddress_NumberTicketMap[account].length;
+    function getCantTicketLotteryFromAccount(address account) view external returns(uint256) {
+        return _Address_ListNumberTicketMap[account].length;
     }
     
     function getAddressFromNumberLotteryAssigned(
         uint256 _number) view public returns(address) {
-        return numberTicketAssigned_personAddressMap[_number];
+        return _numberTicketAssigned_AddressMap[_number];
     }
 
-    function getListNumberTicketAssigned(address account) view public returns(uint256 [] memory) {
-        return personAddress_NumberTicketMap[account];
+    function getListNumberTicketAssigned(address account) view external returns(uint256 [] memory) {
+        return _Address_ListNumberTicketMap[account];
     }
 
-    function closeCrowdFundingAndPickTheWinner() public onlyOwner{
-    //verificar que esté abierto el crowdfundiong
+    function makeLottery() external onlyOwner{
+    //verificar que esté cerrado el crowdfundiong
     //verificar que haya número vendidos
     //generar el random con el número máximo de venta
     //devolver tokenes a todos los participantes
@@ -141,8 +153,14 @@ contract CrowdFunding is Ownable {
     require(_numberTicket.current()>0);
     uint numberWinner = uint(uint(keccak256(abi.encodePacked(block.timestamp))) % _numberTicket.current());
 
-    winnerLottery.accountWinner = getAddressFromNumberLotteryAssigned(numberWinner);
-    winnerLottery.numerWinner = numberWinner;
+    _winnerLotteryStruct.accountWinner = getAddressFromNumberLotteryAssigned(numberWinner);
+    _winnerLotteryStruct.numberWinner = numberWinner;
 
+    emit LogMakeLottery(block.timestamp, _winnerLotteryStruct.accountWinner,
+        _winnerLotteryStruct.numberWinner);
+    }
+
+    function getWinnerLottery() external view returns(WinnerLotteryStruct memory) {
+        return _winnerLotteryStruct;
     }
 }
