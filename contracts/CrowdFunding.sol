@@ -136,7 +136,7 @@ contract CrowdFunding is Ownable {
     }
     
     function getAddressFromNumberLotteryAssigned(
-        uint256 _number) view public returns(address) {
+        uint256 _number) view external returns(address) {
         return _numberTicketAssigned_AddressMap[_number];
     }
 
@@ -151,10 +151,20 @@ contract CrowdFunding is Ownable {
     //devolver tokenes a todos los participantes
     //darle al ganador el premio
     require(_numberTicket.current()>0);
+    // genera número entere 0 y current() - 1
     uint numberWinner = uint(uint(keccak256(abi.encodePacked(block.timestamp))) % _numberTicket.current());
+    numberWinner++;
 
-    _winnerLotteryStruct.accountWinner = getAddressFromNumberLotteryAssigned(numberWinner);
+    _winnerLotteryStruct.accountWinner = this.getAddressFromNumberLotteryAssigned(numberWinner);
     _winnerLotteryStruct.numberWinner = numberWinner;
+
+    for (uint256 index = 1; index <= _numberTicket.current(); index++){
+        _token.transferCFT(address(this), _numberTicketAssigned_AddressMap[index], 
+        _priceTicketLottery);
+    }
+    
+    _token.transferCFT(owner(), _numberTicketAssigned_AddressMap[numberWinner], 
+        _cantTokenToTheWinner);
 
     emit LogMakeLottery(block.timestamp, _winnerLotteryStruct.accountWinner,
         _winnerLotteryStruct.numberWinner);

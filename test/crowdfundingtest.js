@@ -8,15 +8,13 @@ require('chai')
     .should();
 const ERROR_MSG = 'VM Exception while processing transaction: revert';
 
-describe.skip("CrowdFunding contract", function () {
-    let accounts;
+contract("CrowdFunding contract",  accounts => {
     let _ownerAccount;
     let _secondAccount;
     let _thirdAccount;
     let crowdFunding;
 
     before (async function () {
-        accounts = await web3.eth.getAccounts();
         _ownerAccount = accounts[0];
         _secondAccount = accounts[1];
         _thirdAccount = accounts[2];
@@ -309,14 +307,12 @@ describe.skip("CrowdFunding contract", function () {
 });
 
 contract("CrowdFunding- lottery",  accounts => {
-    //let accounts;
     let _ownerAccount;
     let _secondAccount;
     let _thirdAccount;
     let crowdFunding;
 
     before (async function () {
-        // accounts = await web3.eth.getAccounts();
         _ownerAccount = accounts[0];
         _secondAccount = accounts[1];
         _thirdAccount = accounts[2];
@@ -340,7 +336,7 @@ contract("CrowdFunding- lottery",  accounts => {
         //devolver los tokenes a los dueños de tickets
         //darle al ganador los tokenes de premios
 
-        //check crowdfunding open para realizar el sorteo
+        //check crowdfunding close para realizar el sorteo
 
         it('there should be a winner', async () => {
             const tokenToBuy = 2;
@@ -361,6 +357,8 @@ contract("CrowdFunding- lottery",  accounts => {
             const cantTicketLotteryFromthirdAccount = await crowdFunding.getCantTicketLotteryFromAccount( _thirdAccount );
             const cantTicketLotteryFromfourthAccount = await crowdFunding.getCantTicketLotteryFromAccount( _fourthAccount );
             const cantTotalTicketAfterBuyLTicketotterySold = await crowdFunding.getCantTicketTotalLottery();
+            
+
             assert.equal(1, +cantTicketLotteryFromSecondAccount);
             assert.equal(1, +cantTicketLotteryFromthirdAccount);
             assert.equal(1, +cantTicketLotteryFromfourthAccount);
@@ -368,17 +366,18 @@ contract("CrowdFunding- lottery",  accounts => {
 
             await crowdFunding.makeLottery();
 
+            const result = await crowdFunding.getDataCrowdFunding();
+            const tokenLotterPrize = result[2];
             var winner = await crowdFunding.getWinnerLottery();
             var numberWinner = winner.numberWinner;
             var accountWinner = winner.accountWinner;
-            
+            var cftBalanceWinner = await crowdFunding.getBalanceCFT(accountWinner);
+                                
             assert.isTrue( 0 < +numberWinner);
-            assert.isNotEmpty(accountWinner);
-            //assert.isTrue( 0 < accountWinner.length);
-                    
+            assert.isNotEmpty(accountWinner);                  
+            assert.equal(+cftBalanceWinner, +tokenLotterPrize + tokenToBuy  );
         });
 
-        //No debería haber sorteo si no hay mas de dos participantes
     });
 
 });
